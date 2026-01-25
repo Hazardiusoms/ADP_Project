@@ -1,16 +1,16 @@
 package main
 
 import (
-	"booking-system/internal/handlers"
+	"ADP_Project/booking_system/internal/handlers"
 	"fmt"
 	"net/http"
 )
 
 func main() {
-	// routes
-	http.HandleFunc("/", HomeHandler)
-	http.HandleFunc("/rooms", GetRooms)
-	http.HandleFunc("/book", CreateBooking)
+
+	http.HandleFunc("/", handlers.HomeHandler)       // Было HomeHandler
+	http.HandleFunc("/rooms", handlers.GetRooms)     // Было GetRooms
+	http.HandleFunc("/book", handlers.CreateBooking) // Было CreateBooking
 
 	// server launch
 	port := ":8080"
