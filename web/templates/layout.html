@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoBook - Booking System</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="/static/js/modal.js" defer></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>GoBook</h1>
+            </div>
+            <div class="nav-links">
+                {{if .User}}
+                    <span>Welcome, {{.User.FullName}}</span>
+                    <a href="/dashboard">Dashboard</a>
+                    <a href="/profile">Profile</a>
+                    <a href="/bookings/create">New Booking</a>
+                    <a href="/resources/create">New Resource</a>
+                    {{if eq .User.Role "admin"}}
+                        <a href="/admin/audit">Audit Log</a>
+                        <a href="/admin/users">Users</a>
+                    {{end}}
+                    <a href="/login" onclick="document.cookie='user_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'; window.location.href='/login';">Logout</a>
+                {{else}}
+                    <a href="/login">Login</a>
+                    <a href="/register">Register</a>
+                {{end}}
+            </div>
+        </div>
+    </nav>
+    
+    <main class="container">
+        {{block "content" .}}{{end}}
+    </main>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 GoBook - Advanced Programming 1 Assignment 4</p>
+            <p>Team: Lenara Symbatkyzy & Nursalim Onalbayev</p>
+        </div>
+    </footer>
+</body>
+</html>

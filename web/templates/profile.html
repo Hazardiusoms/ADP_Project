@@ -1,0 +1,108 @@
+{{define "content"}}
+<div class="form-container">
+    <div class="form-card">
+        <h2>Личный кабинет</h2>
+        
+        {{if .Error}}
+        <div class="message message-error">{{.Error}}</div>
+        {{end}}
+
+        {{if .Success}}
+        <div class="message message-success">{{.Success}}</div>
+        {{end}}
+
+        <div class="profile-sections">
+            <!-- Personal Information Section -->
+            <div class="profile-section">
+                <h3>Личная информация</h3>
+                <form method="POST" action="/profile/update" class="profile-form">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" value="{{.User.Email}}" disabled>
+                        <small class="form-hint">Email нельзя изменить</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="full_name">Полное имя</label>
+                        <input type="text" id="full_name" name="full_name" value="{{.User.FullName}}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Телефон</label>
+                        <input type="tel" id="phone" name="phone" value="{{.User.Phone}}">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="current_password">Текущий пароль (для смены пароля)</label>
+                        <input type="password" id="current_password" name="current_password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new_password">Новый пароль</label>
+                        <input type="password" id="new_password" name="new_password">
+                        <small class="form-hint">Оставьте пустым, если не хотите менять пароль</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Payment Information Section -->
+            <div class="profile-section">
+                <h3>Платежные данные</h3>
+                <form method="POST" action="/profile/update" class="profile-form">
+                    <div class="form-group">
+                        <label for="payment_method">Способ оплаты</label>
+                        <select id="payment_method" name="payment_method">
+                            <option value="">-- Выберите способ оплаты --</option>
+                            <option value="credit_card" {{if eq (index .PaymentDetails "payment_method") "credit_card"}}selected{{end}}>Кредитная карта</option>
+                            <option value="debit_card" {{if eq (index .PaymentDetails "payment_method") "debit_card"}}selected{{end}}>Дебетовая карта</option>
+                            <option value="paypal" {{if eq (index .PaymentDetails "payment_method") "paypal"}}selected{{end}}>PayPal</option>
+                            <option value="bank_transfer" {{if eq (index .PaymentDetails "payment_method") "bank_transfer"}}selected{{end}}>Банковский перевод</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="card_number">Номер карты</label>
+                        <input type="text" id="card_number" name="card_number" 
+                               value="{{index .PaymentDetails "card_number"}}" 
+                               placeholder="1234 5678 9012 3456" maxlength="19">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="card_holder">Имя держателя карты</label>
+                        <input type="text" id="card_holder" name="card_holder" 
+                               value="{{index .PaymentDetails "card_holder"}}">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="expiry_date">Срок действия</label>
+                            <input type="text" id="expiry_date" name="expiry_date" 
+                                   value="{{index .PaymentDetails "expiry_date"}}" 
+                                   placeholder="MM/YY" maxlength="5">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cvv">CVV</label>
+                            <input type="text" id="cvv" name="cvv" 
+                                   value="{{index .PaymentDetails "cvv"}}" 
+                                   placeholder="123" maxlength="4">
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Сохранить платежные данные</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="/dashboard" class="btn btn-secondary">Назад к дашборду</a>
+        </div>
+    </div>
+</div>
+{{end}}
