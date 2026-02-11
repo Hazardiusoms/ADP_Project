@@ -1,0 +1,117 @@
+{{define "content"}}
+<div class="form-container">
+    <div class="form-card">
+        <h2>Редактировать бронирование #{{.Booking.ID}}</h2>
+        <p><strong>Ресурс:</strong> {{.ResourceName}}</p>
+        
+        {{if .Error}}
+        <div class="message message-error">{{.Error}}</div>
+        {{end}}
+
+        {{if .Success}}
+        <div class="message message-success">{{.Success}}</div>
+        {{end}}
+
+        <div class="edit-sections">
+            <!-- Section 1: Основная информация -->
+            <div class="edit-section">
+                <h3>Основная информация</h3>
+                <form method="POST" action="/bookings/update" class="edit-form">
+                    <input type="hidden" name="booking_id" value="{{.Booking.ID}}">
+                    
+                    <div class="form-group">
+                        <label for="status">Статус</label>
+                        <select id="status" name="status" required>
+                            <option value="pending" {{if eq .Booking.Status "pending"}}selected{{end}}>Pending (Ожидает)</option>
+                            <option value="confirmed" {{if eq .Booking.Status "confirmed"}}selected{{end}}>Confirmed (Подтверждено)</option>
+                            <option value="completed" {{if eq .Booking.Status "completed"}}selected{{end}}>Completed (Завершено)</option>
+                            <option value="cancelled" {{if eq .Booking.Status "cancelled"}}selected{{end}}>Cancelled (Отменено)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="start_time">Время начала</label>
+                        <input type="datetime-local" id="start_time" name="start_time" 
+                               value="{{.Booking.StartTime.Format "2006-01-02T15:04"}}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="end_time">Время окончания</label>
+                        <input type="datetime-local" id="end_time" name="end_time" 
+                               value="{{.Booking.EndTime.Format "2006-01-02T15:04"}}" required>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Section 2: Подтверждение (только для создателя) -->
+            {{if eq $.User.ID .Booking.UserID}}
+            <div class="edit-section">
+                <h3>Подтверждение бронирования</h3>
+                {{if ne .Booking.Status "confirmed"}}
+                <form method="POST" action="/bookings/confirm" onsubmit="return confirm('Подтвердить это бронирование?');">
+                    <input type="hidden" name="booking_id" value="{{.Booking.ID}}">
+                    <p>Вы можете подтвердить это бронирование, если все условия выполнены.</p>
+                    <button type="submit" class="btn btn-success">Подтвердить бронирование</button>
+                </form>
+                {{else}}
+                <div class="message message-success">
+                    ✅ Бронирование подтверждено
+                </div>
+                {{end}}
+            </div>
+            {{end}}
+
+            <!-- Section 3: Загрузка изображений -->
+            {{if eq $.User.ID .Booking.UserID}}
+            <div class="edit-section">
+                <h3>Изображения</h3>
+                <p>Загрузите изображения, связанные с этим бронированием (фото, документы и т.д.)</p>
+                
+                <form method="POST" action="/bookings/upload-image" enctype="multipart/form-data" class="upload-form">
+                    <input type="hidden" name="booking_id" value="{{.Booking.ID}}">
+                    
+                    <div class="form-group">
+                        <label for="images">Выберите изображения</label>
+                        <input type="file" id="images" name="images" multiple accept="image/*" required>
+                        <small class="form-hint">Можно выбрать несколько файлов. Поддерживаются: JPG, PNG, GIF</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Загрузить изображения</button>
+                    </div>
+                </form>
+
+                {{if .Images}}
+                <div class="images-gallery">
+                    <h4>Загруженные изображения:</h4>
+                    <div class="images-grid">
+                        {{range .Images}}
+                        <div class="image-item">
+                            <img src="{{.}}" alt="Booking image" class="gallery-image">
+                            <form method="POST" action="/bookings/delete-image" style="display: inline;" 
+                                  onsubmit="return confirm('Удалить это изображение?');">
+                                <input type="hidden" name="booking_id" value="{{$.Booking.ID}}">
+                                <input type="hidden" name="image_path" value="{{.}}">
+                                <button type="submit" class="btn btn-small btn-danger">Удалить</button>
+                            </form>
+                        </div>
+                        {{end}}
+                    </div>
+                </div>
+                {{else}}
+                <p class="text-muted">Нет загруженных изображений</p>
+                {{end}}
+            </div>
+            {{end}}
+        </div>
+
+        <div class="form-actions">
+            <a href="/dashboard" class="btn btn-secondary">Назад к дашборду</a>
+        </div>
+    </div>
+</div>
+{{end}}

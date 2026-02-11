@@ -1,0 +1,118 @@
+{{define "content"}}
+<div class="dashboard">
+    <div class="dashboard-header">
+        <h2>Resource Dashboard</h2>
+        <div class="dashboard-actions">
+            <a href="/bookings/create" class="btn btn-primary">Create Booking</a>
+            <a href="/bookings/my" class="btn btn-primary">My Bookings</a>
+            <a href="/resources/create" class="btn btn-secondary">Add Resource</a>
+        </div>
+    </div>
+
+    {{if .Error}}
+    <div class="message message-error">{{.Error}}</div>
+    {{end}}
+
+    {{if .Success}}
+    <div class="message message-success">{{.Success}}</div>
+    {{end}}
+
+    <!-- Filters -->
+    <div class="filters-container">
+        <form method="GET" action="/dashboard" class="filters-form">
+            <div class="filter-group">
+                <label for="filter_location">Location:</label>
+                <select id="filter_location" name="location">
+                    <option value="">All Locations</option>
+                    {{range .Locations}}
+                    <option value="{{.}}" {{if eq $.CurrentLocation .}}selected{{end}}>{{.}}</option>
+                    {{end}}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filter_category">Category:</label>
+                <select id="filter_category" name="category">
+                    <option value="">All Categories</option>
+                    {{range .Categories}}
+                    <option value="{{.}}" {{if eq $.CurrentCategory .}}selected{{end}}>{{.}}</option>
+                    {{end}}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filter_booking_type">Type:</label>
+                <select id="filter_booking_type" name="booking_type">
+                    <option value="">All Types</option>
+                    <option value="booking" {{if eq $.CurrentType "booking"}}selected{{end}}>Booking</option>
+                    <option value="sale" {{if eq $.CurrentType "sale"}}selected{{end}}>Sale</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="filter_min_price">Min Price:</label>
+                <input type="number" id="filter_min_price" name="min_price" step="0.01" min="0" value="{{.MinPrice}}" placeholder="0.00">
+            </div>
+
+            <div class="filter-group">
+                <label for="filter_max_price">Max Price:</label>
+                <input type="number" id="filter_max_price" name="max_price" step="0.01" min="0" value="{{.MaxPrice}}" placeholder="0.00">
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="/dashboard" class="btn btn-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="resources-grid">
+        {{range .Resources}}
+        <div class="resource-card">
+            {{if .Images}}
+            <div class="resource-image-container">
+                <a href="/resources/view?id={{.ID}}">
+                    <img src="{{index .Images 0}}" alt="{{.Name}}" class="resource-image">
+                </a>
+            </div>
+            {{else}}
+            <div class="resource-image-container">
+                <a href="/resources/view?id={{.ID}}">
+                    <div class="resource-image-placeholder">No Image</div>
+                </a>
+            </div>
+            {{end}}
+            <div class="resource-header">
+                <h3><a href="/resources/view?id={{.ID}}">{{.Name}}</a></h3>
+                <span class="resource-category">{{.Category}}</span>
+            </div>
+            <p class="resource-description">{{.Description}}</p>
+            <div class="resource-meta">
+                <span class="resource-location">📍 {{.Location}}</span>
+                <span class="resource-type-badge type-{{.BookingType}}">{{.BookingType}}</span>
+            </div>
+            <div class="resource-footer">
+                {{if eq .BookingType "sale"}}
+                <span class="resource-price">${{printf "%.2f" .SalePrice}}</span>
+                {{else}}
+                <span class="resource-price">${{printf "%.2f" .BasePrice}}/hour</span>
+                {{end}}
+                <div class="resource-actions">
+                    <a href="/resources/view?id={{.ID}}" class="btn btn-small btn-primary">View Details</a>
+                    {{if $.User}}
+                        {{if or (eq $.User.Role "admin") (eq $.User.ID .CreatedBy)}}
+                            <a href="/resources/bookings?resource_id={{.ID}}" class="btn btn-small btn-info">View Bookings</a>
+                            <a href="/resources/edit?id={{.ID}}" class="btn btn-small">Edit</a>
+                        {{end}}
+                    {{end}}
+                </div>
+            </div>
+        </div>
+        {{else}}
+        <div class="empty-state">
+            <p>No resources available. <a href="/resources/create">Create one now</a></p>
+        </div>
+        {{end}}
+    </div>
+</div>
+{{end}}

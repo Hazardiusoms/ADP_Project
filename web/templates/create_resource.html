@@ -1,0 +1,129 @@
+{{define "content"}}
+<div class="form-container">
+    <div class="form-card">
+        <h2>Create New Resource</h2>
+        
+        {{if .Error}}
+        <div class="message message-error">{{.Error}}</div>
+        {{end}}
+
+        {{if .Success}}
+        <div class="message message-success">{{.Success}}</div>
+        {{end}}
+
+        <form method="POST" action="/resources/create" enctype="multipart/form-data" class="resource-form">
+            <div class="form-group">
+                <label for="name">Resource Name <span class="required">*</span></label>
+                <input type="text" id="name" name="name" required placeholder="e.g., Conference Room A" value="">
+                <small class="form-hint">Введите название ресурса</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="3" placeholder="Опишите ресурс (необязательно)"></textarea>
+                <small class="form-hint">Дополнительная информация о ресурсе</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="category">Category <span class="required">*</span></label>
+                <select id="category" name="category" required>
+                    <option value="">-- Выберите категорию --</option>
+                    <option value="room">Room (Комната)</option>
+                    <option value="equipment">Equipment (Оборудование)</option>
+                    <option value="service">Service (Услуга)</option>
+                    <option value="other">Other (Другое)</option>
+                </select>
+                <small class="form-hint">Выберите категорию ресурса</small>
+            </div>
+
+            <div class="form-group">
+                <label for="location">Location <span class="required">*</span></label>
+                <select id="location" name="location" required>
+                    <option value="Astana" selected>Astana</option>
+                    {{range .Locations}}
+                    {{if ne . "Astana"}}
+                    <option value="{{.}}">{{.}}</option>
+                    {{end}}
+                    {{end}}
+                </select>
+                <small class="form-hint">Выберите город в Казахстане</small>
+            </div>
+
+            <div class="form-group">
+                <label for="booking_type">Type <span class="required">*</span></label>
+                <select id="booking_type" name="booking_type" required onchange="togglePriceFields()">
+                    <option value="booking" selected>Booking (Бронирование по часам)</option>
+                    <option value="sale">Sale (Продажа)</option>
+                </select>
+                <small class="form-hint">Выберите тип: бронирование (по часам) или продажа (фиксированная цена)</small>
+            </div>
+            
+            <div class="form-group" id="base_price_group">
+                <label for="base_price">Price per hour <span class="required">*</span></label>
+                <input type="number" id="base_price" name="base_price" step="0.01" min="0" placeholder="0.00" value="">
+                <small class="form-hint">Цена за час использования (например: 50.00)</small>
+            </div>
+
+            <div class="form-group" id="sale_price_group" style="display: none;">
+                <label for="sale_price">Sale Price <span class="required">*</span></label>
+                <input type="number" id="sale_price" name="sale_price" step="0.01" min="0" placeholder="0.00" value="">
+                <small class="form-hint">Фиксированная цена продажи (например: 1000.00)</small>
+            </div>
+
+            <div class="form-group">
+                <label for="images">Изображения ресурса</label>
+                <input type="file" id="images" name="images" multiple accept="image/*">
+                <small class="form-hint">Выберите одно или несколько изображений (JPG, PNG, GIF)</small>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Create Resource</button>
+                <a href="/dashboard" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function togglePriceFields() {
+    const bookingType = document.getElementById('booking_type').value;
+    const basePriceGroup = document.getElementById('base_price_group');
+    const salePriceGroup = document.getElementById('sale_price_group');
+    const basePriceInput = document.getElementById('base_price');
+    const salePriceInput = document.getElementById('sale_price');
+
+    if (bookingType === 'booking') {
+        basePriceGroup.style.display = 'block';
+        salePriceGroup.style.display = 'none';
+        basePriceInput.required = true;
+        salePriceInput.required = false;
+        salePriceInput.value = '';
+    } else {
+        basePriceGroup.style.display = 'none';
+        salePriceGroup.style.display = 'block';
+        basePriceInput.required = false;
+        salePriceInput.required = true;
+        basePriceInput.value = '';
+    }
+}
+
+// Validate form before submit
+document.querySelector('form').addEventListener('submit', function(e) {
+    const bookingType = document.getElementById('booking_type').value;
+    const basePrice = document.getElementById('base_price').value;
+    const salePrice = document.getElementById('sale_price').value;
+
+    if (bookingType === 'booking' && !basePrice) {
+        e.preventDefault();
+        alert('Пожалуйста, укажите цену за час');
+        return false;
+    }
+
+    if (bookingType === 'sale' && !salePrice) {
+        e.preventDefault();
+        alert('Пожалуйста, укажите цену продажи');
+        return false;
+    }
+});
+</script>
+{{end}}

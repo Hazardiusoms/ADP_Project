@@ -33,9 +33,4 @@ func CreateDefaultAdmin() {
 		return
 	}
 
-	log.Println("========================================")
-	log.Println("Default admin user created!")
-	log.Println("Email: admin@gobook.com")
-	log.Println("Password: admin123")
-	log.Println("========================================")
 }

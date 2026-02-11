@@ -1,0 +1,60 @@
+{{define "content"}}
+<div class="bookings-container">
+    <div class="bookings-header">
+        <h2>Мои бронирования</h2>
+        <div class="bookings-actions">
+            <a href="/bookings/create" class="btn btn-primary">Создать бронирование</a>
+            <a href="/dashboard" class="btn btn-secondary">Назад к дашборду</a>
+        </div>
+    </div>
+
+    {{if .Error}}
+    <div class="message message-error">{{.Error}}</div>
+    {{end}}
+
+    {{if .Success}}
+    <div class="message message-success">{{.Success}}</div>
+    {{end}}
+
+    {{if .Bookings}}
+    <div class="bookings-table-container">
+        <table class="bookings-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Ресурс</th>
+                    <th>Начало</th>
+                    <th>Конец</th>
+                    <th>Статус</th>
+                    <th>Цена</th>
+                    <th>Дата создания</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Bookings}}
+                <tr>
+                    <td>#{{.ID}}</td>
+                    <td><strong>{{.ResourceName}}</strong></td>
+                    <td>{{.StartTime}}</td>
+                    <td>{{.EndTime}}</td>
+                    <td>
+                        <span class="status-badge status-{{.Status}}">{{.Status}}</span>
+                    </td>
+                    <td>${{printf "%.2f" .TotalPrice}}</td>
+                    <td>{{.CreatedAt}}</td>
+                    <td>
+                        <a href="/bookings/edit?id={{.ID}}" class="btn btn-small btn-info">Редактировать</a>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+    {{else}}
+    <div class="empty-state">
+        <p>У вас нет бронирований. <a href="/bookings/create">Создайте первое бронирование</a></p>
+    </div>
+    {{end}}
+</div>
+{{end}}

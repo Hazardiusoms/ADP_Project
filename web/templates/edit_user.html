@@ -1,0 +1,62 @@
+{{define "content"}}
+<div class="form-container">
+    <div class="form-card">
+        <h2>Редактировать пользователя: {{.EditUser.FullName}}</h2>
+        
+        {{if .Error}}
+        <div class="message message-error">{{.Error}}</div>
+        {{end}}
+
+        {{if .Success}}
+        <div class="message message-success">{{.Success}}</div>
+        {{end}}
+
+        <form method="POST" action="/admin/users/update" class="edit-form">
+            <input type="hidden" name="user_id" value="{{.EditUser.ID}}">
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" value="{{.EditUser.Email}}" disabled>
+                <small class="form-hint">Email нельзя изменить</small>
+            </div>
+
+            <div class="form-group">
+                <label for="full_name">Полное имя</label>
+                <input type="text" id="full_name" name="full_name" value="{{.EditUser.FullName}}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Телефон</label>
+                <input type="tel" id="phone" name="phone" value="{{.EditUser.Phone}}">
+            </div>
+
+            <div class="form-group">
+                <label for="role">Роль</label>
+                <select id="role" name="role" required>
+                    <option value="user" {{if eq .EditUser.Role "user"}}selected{{end}}>User</option>
+                    <option value="admin" {{if eq .EditUser.Role "admin"}}selected{{end}}>Admin</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="is_active">Активен</label>
+                <select id="is_active" name="is_active" required>
+                    <option value="1" {{if .EditUser.IsActive}}selected{{end}}>Да</option>
+                    <option value="0" {{if not .EditUser.IsActive}}selected{{end}}>Нет</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="new_password">Новый пароль (оставьте пустым, чтобы не менять)</label>
+                <input type="password" id="new_password" name="new_password">
+                <small class="form-hint">Введите новый пароль только если хотите его изменить</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                <a href="/admin/users" class="btn btn-secondary">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{{end}}

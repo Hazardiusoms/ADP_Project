@@ -1,0 +1,150 @@
+{{define "content"}}
+<div class="resource-view-container">
+    <div class="resource-view">
+        <!-- Left side: Images -->
+        <div class="resource-view-images">
+            {{if .Resource.Images}}
+            <div class="image-gallery">
+                <div class="main-image-container">
+                    <img id="main-image" src="{{index .Resource.Images 0}}" alt="{{.Resource.Name}}" class="main-image">
+                </div>
+                {{if gt (len .Resource.Images) 1}}
+                <div class="thumbnail-container">
+                    {{range $index, $img := .Resource.Images}}
+                    <img src="{{$img}}" alt="Thumbnail {{$index}}" class="thumbnail {{if eq $index 0}}active{{end}}" 
+                         onclick="changeImage('{{$img}}', {{$index}})">
+                    {{end}}
+                </div>
+                {{end}}
+            </div>
+            {{else}}
+            <div class="image-placeholder-large">
+                <p>No Image Available</p>
+            </div>
+            {{end}}
+        </div>
+
+        <!-- Right side: Description and Booking -->
+        <div class="resource-view-details">
+            <div class="resource-view-header">
+                <h1>{{.Resource.Name}}</h1>
+                <div class="resource-badges">
+                    <span class="resource-category-badge">{{.Resource.Category}}</span>
+                    <span class="resource-type-badge type-{{.Resource.BookingType}}">{{.Resource.BookingType}}</span>
+                </div>
+            </div>
+
+            <div class="resource-view-location">
+                <p>📍 <strong>{{.Resource.Location}}</strong></p>
+            </div>
+
+            <div class="resource-view-description">
+                <h3>Description</h3>
+                <p>{{if .Resource.Description}}{{.Resource.Description}}{{else}}No description available.{{end}}</p>
+            </div>
+
+            <div class="resource-view-pricing">
+                <h3>Price</h3>
+                {{if eq .Resource.BookingType "sale"}}
+                <p class="price-large">${{printf "%.2f" .Resource.SalePrice}}</p>
+                <p class="price-note">Fixed sale price</p>
+                {{else}}
+                <p class="price-large">${{printf "%.2f" .Resource.BasePrice}} <span class="price-unit">/ hour</span></p>
+                {{end}}
+            </div>
+
+            <div class="resource-view-actions">
+                {{if .User}}
+                <a href="/bookings/create?resource_id={{.Resource.ID}}" class="btn btn-primary btn-large">
+                    {{if eq .Resource.BookingType "sale"}}Purchase{{else}}Book Now{{end}}
+                </a>
+                {{else}}
+                <a href="/login?redirect=/resources/view?id={{.Resource.ID}}" class="btn btn-primary btn-large">Login to {{if eq .Resource.BookingType "sale"}}purchase{{else}}book{{end}}</a>
+                {{end}}
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="reviews-section">
+        <h3>Reviews</h3>
+        
+        {{if .Error}}
+        <div class="message message-error">{{.Error}}</div>
+        {{end}}
+
+        {{if .Success}}
+        <div class="message message-success">{{.Success}}</div>
+        {{end}}
+        
+        {{if .User}}
+        <!-- Review Form -->
+        <div class="review-form-container">
+            <form method="POST" action="/resources/review" class="review-form">
+                <input type="hidden" name="resource_id" value="{{.Resource.ID}}">
+                
+                <div class="form-group">
+                    <label for="rating">Rating:</label>
+                    <select id="rating" name="rating" required>
+                        <option value="5" {{if and .UserReview (eq .UserReview.Rating 5)}}selected{{end}}>5 - Excellent</option>
+                        <option value="4" {{if and .UserReview (eq .UserReview.Rating 4)}}selected{{end}}>4 - Very Good</option>
+                        <option value="3" {{if and .UserReview (eq .UserReview.Rating 3)}}selected{{end}}>3 - Good</option>
+                        <option value="2" {{if and .UserReview (eq .UserReview.Rating 2)}}selected{{end}}>2 - Fair</option>
+                        <option value="1" {{if and .UserReview (eq .UserReview.Rating 1)}}selected{{end}}>1 - Poor</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="comment">Your Review:</label>
+                    <textarea id="comment" name="comment" rows="3" required placeholder="Write your review here...">{{if .UserReview}}{{.UserReview.Comment}}{{end}}</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">{{if .UserReview}}Update Review{{else}}Submit Review{{end}}</button>
+            </form>
+        </div>
+        {{else}}
+        <p class="review-login-prompt"><a href="/login?redirect=/resources/view?id={{.Resource.ID}}">Login</a> to leave a review</p>
+        {{end}}
+
+        <!-- Reviews List -->
+        <div class="reviews-list">
+            {{if .Reviews}}
+                {{range .Reviews}}
+                <div class="review-item">
+                    <div class="review-header">
+                        <span class="review-author">{{.UserName}}</span>
+                        <span class="review-rating">
+                            {{if ge .Rating 1}}★{{else}}☆{{end}}
+                            {{if ge .Rating 2}}★{{else}}☆{{end}}
+                            {{if ge .Rating 3}}★{{else}}☆{{end}}
+                            {{if ge .Rating 4}}★{{else}}☆{{end}}
+                            {{if ge .Rating 5}}★{{else}}☆{{end}}
+                        </span>
+                        <span class="review-date">{{.CreatedAt}}</span>
+                    </div>
+                    <div class="review-comment">{{.Comment}}</div>
+                </div>
+                {{end}}
+            {{else}}
+                <p class="no-reviews">No reviews yet. Be the first to review!</p>
+            {{end}}
+        </div>
+    </div>
+</div>
+
+<script>
+function changeImage(imageSrc, index) {
+    document.getElementById('main-image').src = imageSrc;
+    
+    // Update active thumbnail
+    document.querySelectorAll('.thumbnail').forEach(function(thumb, i) {
+        if (i === index) {
+            thumb.classList.add('active');
+        } else {
+            thumb.classList.remove('active');
+        }
+    });
+}
+</script>
+{{end}}
